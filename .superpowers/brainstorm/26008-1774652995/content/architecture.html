@@ -1,0 +1,76 @@
+<h2>System Architecture — Option B</h2>
+<p class="subtitle">Two independent pieces sharing a SQLite database</p>
+
+<div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:16px">
+
+  <div style="flex:1;min-width:280px">
+    <div class="mockup">
+      <div class="mockup-header">🔍 Piece 1 — Scraper CLI (runs locally)</div>
+      <div class="mockup-body" style="font-size:13px;line-height:1.8">
+        <strong>Python + Playwright</strong><br>
+        <code>python scrape.py --city Burlington --type restaurant</code><br><br>
+        <strong>Data sources:</strong><br>
+        → Google Maps (primary)<br>
+        → Yellow Pages / Canada411 (enrichment)<br><br>
+        <strong>Scoring engine:</strong><br>
+        → No website → +40pts<br>
+        → No Google listing → +30pts<br>
+        → Wix/Squarespace/template site → +20pts<br>
+        → Few/old reviews → +10pts<br>
+        → Business type match → +10–20pts<br>
+        → Broken/no SSL → +10pts<br><br>
+        <strong>Output:</strong> writes leads → <code>leads.db</code> (SQLite)
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;font-size:28px;padding:0 8px">⇄</div>
+
+  <div style="flex:1;min-width:280px">
+    <div class="mockup">
+      <div class="mockup-header">📋 Piece 2 — CRM App (Node.js + Express)</div>
+      <div class="mockup-body" style="font-size:13px;line-height:1.8">
+        <strong>Reads from <code>leads.db</code></strong><br><br>
+        <strong>CRM views:</strong><br>
+        → Lead list (sortable by score)<br>
+        → Lead detail (all scraped data + score breakdown)<br>
+        → Status pipeline (New → Contacted → Replied → Won/Lost)<br>
+        → Filter by city, niche, score range<br><br>
+        <strong>Outreach:</strong><br>
+        → "Draft email" → calls Claude API → personalized pitch<br>
+        → Copy to clipboard or (later) send via Gmail<br><br>
+        <strong>Deploy:</strong> Railway or run locally<br>
+        <strong>Frontend:</strong> Vanilla HTML/CSS/JS (no framework)
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:24px">
+  <div class="mockup">
+    <div class="mockup-header">🗄️ Shared — leads.db (SQLite)</div>
+    <div class="mockup-body" style="font-size:13px;line-height:1.8;display:flex;gap:32px;flex-wrap:wrap">
+      <div>
+        <strong>leads table</strong><br>
+        id, name, address, city, niche<br>
+        phone, email, website_url<br>
+        google_listing (bool)<br>
+        site_platform (wix/wp/none/etc)<br>
+        review_count, last_review_date<br>
+        score, score_breakdown (JSON)<br>
+        scraped_at
+      </div>
+      <div>
+        <strong>outreach table</strong><br>
+        id, lead_id<br>
+        status (new/contacted/replied/won/lost)<br>
+        email_draft (text)<br>
+        notes<br>
+        contacted_at, updated_at
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:16px">Does this overall structure look right? Any pieces missing or wrong?</p>

@@ -1,0 +1,80 @@
+<h2>CRM Layout Options</h2>
+<p class="subtitle">How the lead list + detail view are arranged</p>
+
+<div class="cards" style="margin-top:16px">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a1a;padding:12px;font-family:monospace;font-size:11px;color:#eee;min-height:160px">
+      <div style="background:#2a2a2a;padding:6px 8px;margin-bottom:8px;border-radius:3px;color:#aaa;font-size:10px">
+        🔍 Burlington · Restaurant · Score: 60+ &nbsp;&nbsp; [Run Scrape] [Filter]
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div style="background:#C84B1A;padding:5px 8px;border-radius:3px;display:flex;justify-content:space-between"><span>Mario's Pizza</span><span>🔥 87pts · No website</span></div>
+        <div style="background:#333;padding:5px 8px;border-radius:3px;display:flex;justify-content:space-between"><span>Salon Luxe</span><span>74pts · Wix site</span></div>
+        <div style="background:#333;padding:5px 8px;border-radius:3px;display:flex;justify-content:space-between"><span>Burlington Plumbing</span><span>68pts · No GMB</span></div>
+        <div style="background:#333;padding:5px 8px;border-radius:3px;display:flex;justify-content:space-between"><span>The Bread Oven</span><span>55pts · Old reviews</span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Full-width list</h3>
+      <p>Lead list takes full screen. Click a row → slides open a detail panel on the right (drawer style). Clean, fast to scan.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a1a;padding:12px;font-family:monospace;font-size:11px;color:#eee;min-height:160px;display:flex;gap:8px">
+      <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+        <div style="background:#2a2a2a;padding:4px 6px;border-radius:3px;color:#aaa;font-size:10px">Leads (42)</div>
+        <div style="background:#C84B1A;padding:4px 6px;border-radius:3px">Mario's Pizza 🔥</div>
+        <div style="background:#333;padding:4px 6px;border-radius:3px">Salon Luxe</div>
+        <div style="background:#333;padding:4px 6px;border-radius:3px">Burlington Plumbing</div>
+        <div style="background:#333;padding:4px 6px;border-radius:3px">The Bread Oven</div>
+      </div>
+      <div style="flex:2;background:#222;border-radius:3px;padding:8px;font-size:10px;color:#ccc">
+        <div style="color:#C84B1A;font-weight:bold;margin-bottom:4px">Mario's Pizza · 87pts 🔥</div>
+        <div>📍 Burlington · Restaurant</div>
+        <div>🌐 No website</div>
+        <div>📋 No Google listing</div>
+        <div style="margin-top:6px;background:#333;padding:4px;border-radius:2px">Score: No site +40 · No GMB +30 · Type +10 · Old reviews +7</div>
+        <div style="margin-top:6px;background:#C84B1A;padding:3px 6px;border-radius:2px;display:inline-block">✉ Draft Outreach Email</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Split panel (list + detail)</h3>
+      <p>Left column = lead list. Right panel = selected lead detail + score breakdown + outreach button. Everything visible at once.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a1a;padding:12px;font-family:monospace;font-size:11px;color:#eee;min-height:160px">
+      <div style="display:flex;gap:6px;margin-bottom:8px">
+        <div style="background:#C84B1A;padding:3px 8px;border-radius:12px;font-size:10px">🔥 Hot (12)</div>
+        <div style="background:#555;padding:3px 8px;border-radius:12px;font-size:10px">Warm (18)</div>
+        <div style="background:#333;padding:3px 8px;border-radius:12px;font-size:10px">Cold (12)</div>
+        <div style="background:#222;padding:3px 8px;border-radius:12px;font-size:10px">Contacted (8)</div>
+      </div>
+      <div style="display:flex;gap:6px;overflow:hidden">
+        <div style="flex:1;background:#222;border-radius:3px;padding:6px">
+          <div style="color:#C84B1A;font-size:10px;margin-bottom:4px">🔥 HOT</div>
+          <div style="background:#2a2a2a;padding:4px;border-radius:2px;margin-bottom:3px;font-size:10px">Mario's Pizza<br><span style="color:#888">87pts · No site</span></div>
+          <div style="background:#2a2a2a;padding:4px;border-radius:2px;font-size:10px">Joe's Auto<br><span style="color:#888">82pts · No GMB</span></div>
+        </div>
+        <div style="flex:1;background:#222;border-radius:3px;padding:6px">
+          <div style="color:#aaa;font-size:10px;margin-bottom:4px">WARM</div>
+          <div style="background:#2a2a2a;padding:4px;border-radius:2px;margin-bottom:3px;font-size:10px">Salon Luxe<br><span style="color:#888">74pts · Wix</span></div>
+        </div>
+        <div style="flex:1;background:#222;border-radius:3px;padding:6px">
+          <div style="color:#555;font-size:10px;margin-bottom:4px">CONTACTED</div>
+          <div style="background:#2a2a2a;padding:4px;border-radius:2px;font-size:10px">Bread Oven<br><span style="color:#888">Sent 3d ago</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Kanban pipeline</h3>
+      <p>Columns = Hot / Warm / Cold / Contacted / Won / Lost. Drag cards through the pipeline. More of a sales workflow view.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px">⭐ Recommended: <strong>B</strong> — split panel gives you the most info density without clicking around. Kanban (C) is great but adds complexity for v1.</p>

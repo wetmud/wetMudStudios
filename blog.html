@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self';
+             style-src 'self' 'unsafe-inline' https://api.fontshare.com https://fonts.googleapis.com https://fonts.gstatic.com;
+             font-src https://api.fontshare.com https://fonts.gstatic.com;
+             img-src 'self' data:;
+             script-src 'self' 'unsafe-inline';
+             connect-src 'none';
+             frame-ancestors 'none';">
+  <title>Blog — wetMud Studios</title>
+  <meta name="description" content="Writing on web design, AI tools, and building things that work. From the studio of Jason Steltman, Burlington, ON.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800,900&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:        #f5f0e8;
+      --ink:       #111111;
+      --muted:     #666666;
+      --accent:    #C84B1A;
+      --line:      rgba(17,17,17,0.10);
+      --shadow:    10px 14px 0px rgba(0,0,0,0.18);
+      --f-display: 'Cabinet Grotesk', sans-serif;
+      --f-body:    'Fraunces', Georgia, serif;
+      --text-xs:      0.75rem;
+      --text-sm:      0.8125rem;
+      --text-base:    1rem;
+      --text-lg:      1.125rem;
+      --text-xl:      clamp(1.2rem, 2vw, 1.6rem);
+      --text-3xl:     clamp(2rem, 4vw, 3.2rem);
+      --text-display: clamp(2.5rem, 6vw, 5rem);
+      --track-tight:  -0.03em;
+      --track-label:  0.12em;
+      --gap: clamp(1.5rem, 4vw, 3rem);
+      --section: clamp(4rem, 10vw, 8rem);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--f-body);
+      font-size: var(--text-base);
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        rgba(17,17,17,0.04) 0px,
+        rgba(17,17,17,0.04) 1px,
+        transparent 1px,
+        transparent calc((100vw - 2 * clamp(1.5rem, 5vw, 5rem)) / 12)
+      );
+    }
+
+    /* MARQUEE */
+    #marquee-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 30px;
+      background: var(--ink);
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      z-index: 100;
+    }
+    .marquee-track {
+      display: flex;
+      white-space: nowrap;
+      animation: marquee 28s linear infinite;
+    }
+    .marquee-track span {
+      font-family: var(--f-display);
+      font-weight: 700;
+      font-size: var(--text-sm);
+      letter-spacing: var(--track-label);
+      text-transform: uppercase;
+      padding: 0 2rem;
+      color: var(--bg);
+    }
+    .marquee-track span.sep { color: var(--accent); }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 30px; left: 0; right: 0;
+      padding: 1rem clamp(1.5rem, 5vw, 5rem);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 99;
+      background: rgba(245,240,232,0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-logo {
+      font-family: var(--f-display);
+      font-weight: 900;
+      font-size: 1.2rem;
+      letter-spacing: -0.02em;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      font-family: var(--f-display);
+      font-weight: 700;
+      font-size: var(--text-sm);
+      letter-spacing: var(--track-label);
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+    .nav-cta {
+      font-family: var(--f-display);
+      font-weight: 700;
+      font-size: var(--text-sm);
+      letter-spacing: var(--track-label);
+      text-transform: uppercase;
+      padding: 0.5rem 1.25rem;
+      border: 1.5px solid var(--ink);
+      transition: background 0.2s, color 0.2s;
+    }
+    .nav-cta:hover { background: var(--ink); color: var(--bg); }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 clamp(1.5rem, 5vw, 5rem);
+    }
+
+    /* PAGE HEADER */
+    #page-header {
+      padding-top: calc(30px + 80px + 3rem);
+      padding-bottom: 3rem;
+      position: relative;
+      z-index: 1;
+    }
+    .page-label {
+      font-family: var(--f-display);
+      font-weight: 700;
+      font-size: var(--text-sm);
+      letter-spacing: var(--track-label);
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    .page-headline {
+      font-family: var(--f-display);
+      font-weight: 900;
+      font-size: var(--text-display);
+      line-height: 0.95;
+      letter-spacing: var(--track-tight);
+      margin-bottom: 1.5rem;
+    }
+    .page-headline em { font-style: normal; color: var(--accent); }
+    .page-sub {
+      font-family: var(--f-body);
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(1rem, 1.8vw, 1.2rem);
+      color: var(--muted);
+      max-width: 52ch;
+      line-height: 1.55;
+    }
+    .sep-line {
+      text-align: center;
+      font-family: var(--f-display);
+      font-size: var(--text-sm);
+      letter-spacing: 0.4em;
+      color: var(--muted);
+      padding: 1.5rem 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* FILTER */
+    #blog-section { padding-bottom: var(--section); position: relative; z-index: 1; }
+    #tag-filter { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 3rem; }
+    .filter-btn {
+      font-family: var(--f-display);
+      font-weight: 700;
+      font-size: var(--text-xs);
+      letter-spacing: var(--track-label);
+      text-transform: uppercase;
+      padding: 0.35rem 0.9rem;
+      border: 1.5px solid var(--line);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+    .filter-btn:hover { border-color: var(--ink); color: var(--ink); }
+    .filter-btn.active { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+
+    /* GRID */
+    #blog-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap); }
+    .post-card {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform 0.22s cubic-bezier(0.25,0,0,1), box-shadow 0.22s cubic-bezier(0.25,0,0,1);
+      display: flex;
+      flex-direction: column;
+    }
+    .post-card:hover {
+      transform: translateY(-4px) translateX(-4px);
+      box-shadow: 18px 20px 0px rgba(0,0,0,0.18);
+    }
+    .post-card-body { padding: 2rem; display: flex; flex-direction: column; flex: 1; }
+    .post-date {
+      font-family: var(--f-display);
+      font-weight: 500;
+      font-size: var(--text-xs);
+      letter-spacing: var(--track-label);
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+    .post-card-title {
+      font-family: var(--f-display);
+      font-weight: 800;
+      font-size: var(--text-xl);
+      letter-spacing: var(--track-tight);
+      line-height: 1.1;
+      margin-bottom: 0.75rem;
+    }
+    .post-excerpt {
+      font-family: var(--f-body);
+      font-weight: 300;
+      font-size: var(--text-base);
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 1.25rem;
+      flex: 1;
+    }
+    .post-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .post-tag {
+      font-family: var(--f-display);
+      font-weight: 500;
+      font-size: var(--text-xs);
+      letter-spacing: var(--track-label);
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      border: 1px solid var(--line);
+      color: var(--muted);
+    }
+    .post-read-more {
+      font-family: var(--f-display);
+      font-weight: 700;
+      font-size: var(--text-sm);
+      letter-spacing: var(--track-label);
+      text-transform: uppercase;
+      color: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: gap 0.2s;
+    }
+    .post-read-more::after { content: '→'; }
+    .post-card:hover .post-read-more { gap: 0.7rem; }
+    #no-posts {
+      display: none;
+      grid-column: 1 / -1;
+      font-family: var(--f-display);
+      font-weight: 500;
+      font-size: var(--text-sm);
+      letter-spacing: var(--track-label);
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 3rem 0;
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(17,17,17,0.7);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--bg);
+      max-width: 680px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow);
+    }
+    .modal-close {
+      position: sticky;
+      top: 0;
+      display: flex;
+      justify-content: flex-end;
+      width: 100%;
+      padding: 1rem 1.5rem 0;
+      background: var(--bg);
+      font-family: var(--f-display);
+      font-weight: 700;
+      font-size: var(--text-xs);
+      letter-spacing: var(--track-label);
+      text-transform: uppercase;
+      color: var(--muted);
+      border: none;
+      cursor: pointer;
+      transition: color 0.2s;
+      z-index: 1;
+    }
+    .modal-close:hover { color: var(--accent); }
+    .modal-body { padding: 1rem 2.5rem 2.5rem; }
+    .modal-date {
+      font-family: var(--f-display);
+      font-weight: 500;
+      font-size: var(--text-xs);
+      letter-spacing: var(--track-label);
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 0.75rem;
+    }
+    .modal-title {
+      font-family: var(--f-display);
+      font-weight: 900;
+      font-size: var(--text-3xl);
+      letter-spacing: var(--track-tight);
+      line-height: 1.05;
+      margin-bottom: 2rem;
+    }
+    .modal-content p {
+      font-family: var(--f-body);
+      font-weight: 300;
+      font-size: var(--text-lg);
+      line-height: 1.75;
+      margin-bottom: 1.25rem;
+      max-width: 60ch;
+    }
+    .modal-content p:last-child { margin-bottom: 0; }
+    .modal-footer-tags {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--line);
+    }
+    .modal-tag {
+      font-family: var(--f-display);
+      font-weight: 500;
+      font-size: var(--text-xs);
+      letter-spacing: var(--track-label);
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      border: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--ink);
+      color: rgba(245,240,232,0.4);
+      border-top: 1px solid rgba(245,240,232,0.08);
+      padding: 2rem clamp(1.5rem, 5vw, 5rem);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+    .footer-logo { font-family: var(--f-display); font-weight: 900; font-size: 1rem; color: var(--bg); letter-spacing: -0.02em; }
+    .footer-logo span { color: var(--accent); }
+    .footer-copy, .footer-location {
+      font-family: var(--f-display);
+      font-weight: 500;
+      font-size: var(--text-xs);
+      letter-spacing: var(--track-label);
+      text-transform: uppercase;
+    }
+
+    /* REVEAL */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.65s cubic-bezier(0.25,0,0,1), transform 0.65s cubic-bezier(0.25,0,0,1);
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+
+    @media (max-width: 900px) {
+      #blog-grid { grid-template-columns: repeat(2, 1fr); }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 600px) {
+      #blog-grid { grid-template-columns: 1fr; }
+      .modal-body { padding: 1rem 1.5rem 2rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { opacity: 1; transform: none; }
+      .marquee-track { animation: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="marquee-bar" aria-hidden="true">
+    <div class="marquee-track">
+      <span>WEB DESIGN</span><span class="sep">·</span>
+      <span>AI INTEGRATION</span><span class="sep">·</span>
+      <span>DATA TOOLS</span><span class="sep">·</span>
+      <span>BURLINGTON, ON</span><span class="sep">·</span>
+      <span>CANADA-WIDE</span><span class="sep">·</span>
+      <span>WETMUD STUDIOS</span><span class="sep">·</span>
+      <span>WEB DESIGN</span><span class="sep">·</span>
+      <span>AI INTEGRATION</span><span class="sep">·</span>
+      <span>DATA TOOLS</span><span class="sep">·</span>
+      <span>BURLINGTON, ON</span><span class="sep">·</span>
+      <span>CANADA-WIDE</span><span class="sep">·</span>
+      <span>WETMUD STUDIOS</span><span class="sep">·</span>
+    </div>
+  </div>
+
+  <nav>
+    <a href="index.html" class="nav-logo">wetMud<span>.</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html#services">Services</a></li>
+      <li><a href="index.html#work">Work</a></li>
+      <li><a href="index.html#process">Process</a></li>
+      <li><a href="index.html#about">About</a></li>
+      <li><a href="blog.html" class="active">Blog</a></li>
+    </ul>
+    <a href="index.html#contact" class="nav-cta">Book a Free Call</a>
+  </nav>
+
+  <header id="page-header">
+    <div class="container">
+      <p class="page-label reveal">WETMUD STUDIOS — WRITING</p>
+      <h1 class="page-headline reveal reveal-delay-1">Notes from<br>the <em>studio.</em></h1>
+      <p class="page-sub reveal reveal-delay-2">On building things, design decisions, and what I've learned shipping real projects.</p>
+    </div>
+  </header>
+
+  <div class="sep-line" aria-hidden="true">· · · ·</div>
+
+  <section id="blog-section">
+    <div class="container">
+      <div id="tag-filter" class="reveal"></div>
+      <div id="blog-grid">
+        <p id="no-posts">No posts in this category yet.</p>
+      </div>
+    </div>
+  </section>
+
+  <div id="modal-container"></div>
+
+  <footer>
+    <a href="index.html" class="footer-logo">wetMud<span>.</span></a>
+    <span class="footer-copy">© 2026 WETMUD STUDIOS</span>
+    <span class="footer-location">BURLINGTON, ONTARIO</span>
+  </footer>
+
+  <script>
+    var POSTS = [
+      {
+        title: 'Why I Build Everything From Scratch',
+        date: 'February 2026',
+        excerpt: 'Templates are faster, cheaper, and endlessly forgiving. So why do I keep opening a blank file?',
+        tags: ['Web Design', 'Process'],
+        content: [
+          'I opened a fresh file for the last client project and just stared at it for a second. Nothing but a doctype and a blinking cursor. That moment — before anything exists — is the part I love.',
+          'I use templates. I know how to use them, and I do when the timeline is tight and the requirements are genuinely simple. But there is something about starting from nothing that changes how you think. Every element has to answer for itself. You stop adding things because they seem like a good idea and start asking whether they actually need to be there.',
+          'The real problem with templates is not that they are bad. It is that they solve the original designer\'s problems — not yours. Every business is specific. A bakery in Burlington has different needs than a bakery in Vancouver. A plumber has different needs than a therapist. A tool built for all of them is optimized for none of them.',
+          'The other thing: custom code is faster to fix. When something breaks on a template site, you are debugging someone else\'s assumptions about a general case. When something breaks in code I wrote, I know exactly where to look. That matters when a client calls on a Friday afternoon before a long weekend. It has happened. More than once.'
+        ]
+      },
+      {
+        title: 'Building CivicConnect: What I Learned',
+        date: 'January 2026',
+        excerpt: 'A civic tech project that started as a weekend experiment and turned into something I actually use.',
+        tags: ['Case Study', 'Civic Tech', 'AI Tools'],
+        content: [
+          'I wanted to write to my city councillor and had no idea who that was. I did not know what ward I lived in. I did not know if it was a municipal issue or a provincial one. I just had something I wanted to say and no clear way to say it. That felt like a failure — not mine, but of the systems around me.',
+          'So I built a thing. You type in your address and it gives you everyone who represents that location: municipal, provincial, federal. Direct contact links. An AI tool that helps you draft the actual email. The whole thing in ten seconds.',
+          'The hardest part was not the code. It was deciding what to leave out. I had a version planned that tracked voting records, pulled Hansard transcripts, ranked responsiveness. That version never would have shipped. The version that shipped does one thing well: it tells you who to call and makes calling them as easy as possible.',
+          'Zero data collection was non-negotiable from the start. Your address is never stored, logged, or shared. Everything runs in the browser and disappears when you leave. That constraint shaped more technical decisions than anything else. It is also just the right way to build something people have to trust.'
+        ]
+      },
+      {
+        title: 'What I Noticed Auditing Small Business Websites',
+        date: 'December 2025',
+        excerpt: 'I spent a week clicking through small business websites in Burlington. I was not expecting to feel so much.',
+        tags: ['Small Business', 'Web Design', 'Burlington'],
+        content: [
+          'I spent a week clicking through small business websites in Burlington and Hamilton. No brief, no checklist. Just Google searches for plumbers, bakeries, salons, contractors — whoever came up — and then clicking through to see what was actually there.',
+          'The pattern was immediate. Most of the sites were not bad because the owners did not care. They were bad because someone had built them in an afternoon five or six years ago — or paid four hundred dollars to a guy who said he did websites — and then there was no path back in. The content was outdated. The phone number was wrong. The menu was from 2021.',
+          'What got me was how much was riding on it. Someone looking for a plumber is making a trust decision based almost entirely on whether your website makes you look like a real business. A site that looks abandoned says something you probably do not mean to say: we might abandon you too.',
+          'The fix is almost never as big as people assume. For most of what I saw, a few focused hours — current copy, a working contact button, one recent photo — would have completely changed the impression. The gap between where those businesses were and where they could be was smaller than the gap between knowing it needed doing and actually doing it. That second gap is the one worth fixing.'
+        ]
+      },
+      {
+        title: 'On Side Projects',
+        date: 'November 2025',
+        excerpt: 'The projects I build for no one in particular are the ones that have taught me the most.',
+        tags: ['Web', 'Process', 'Reflection'],
+        content: [
+          'Every useful skill I have came from a side project. Not a tutorial. Not a course. Not a work assignment. Just: I wanted something to exist, it did not, so I built it and figured out the rest along the way.',
+          'The Ontario Markets project started because I kept missing the farmers market in my neighbourhood. I wanted a calendar that showed me which markets were open on which days, across the whole province, with enough detail to actually use. Nothing like that existed. So one weekend I built it.',
+          'That project taught me more than anything I could have read. The constraints were real because my problem was real. When something did not work, I noticed immediately — I was the user. That is a very different pressure than building an exercise for someone else to grade.',
+          'The mistake people make with side projects is treating them as portfolio pieces from the start. A portfolio piece is built to impress someone. A side project is built because you need it. The best thing that can happen is a client finds it and says: I need exactly that, for my business. That has happened to me more than once. Build things you actually want. The rest has a way of following.'
+        ]
+      },
+      {
+        title: 'Why I Love My French Press',
+        date: 'March 2026',
+        excerpt: 'I have been ritualistically drinking from this French press for ten years.',
+        tags: ['Coffee', 'Memories'],
+        content: [
+          "I love my French press and I imagine myself getting old still drinking it the same way. Why am I so in love with this specific method of making coffee? Well, when I was living in Toronto there was this bar and brunch restaurant that only did brunch on weekends. It's called The Three Speed, on Bloor and Dufferin.",
+          "Their breakfast was wonderful — the perfect portion of eggs, fried potatoes, and the most uplifting garden salad with the gentlest oil and balsamic dressing. I remember one morning my father and uncle came to visit me in the city. I had awoken abruptly on the futon of my apartment to his phone call announcing their soon-to-be arrival. Fuck. I was violently hungover.",
+          "I closed my eyes and when I opened them the two men were standing above me, hungry, impatient, and wanting to go for breakfast. My roommate Alex was luckily fully capable, so I brought him along to entertain the adults while I grovelled in my pit of despair.",
+          "When we got to The Three Speed and they took our order, I begged: 'Would you please just bring me a bowl of the side salad. I am unwell.' To which she replied, 'Let me ask the chef,' with a smile. She returned moments later with a massive kitchen bowl filled with the side salad. By the end of the meal I was joking, standing, smiling even. I made a point to go to the back and thank the chef personally. He had saved my life that day.",
+          "Anyway — the coffee. The Three Speed's coffee back then was always a French press. You could order a half Bodum or a full Bodum. This coffee was always perfectly made. The foam at the top was thin on your mug and it felt almost like a soup — thick and wonderful, never burnt, never too strong. I've been trying to recreate that experience ever since.",
+          "We went back a few years ago and they had stopped serving the Bodums. I spoke with the waiter and he was shocked they ever had them. I explained how special this place was and that it will always hold a special place in my heart. Next step is to ask them what beans they used to use. Maybe they'll remember."
+        ]
+      }
+    ];
+
+    var activeTag = 'All';
+
+    function getAllTags() {
+      var tags = ['All'], seen = {};
+      POSTS.forEach(function(p) {
+        p.tags.forEach(function(t) {
+          if (!seen[t]) { seen[t] = true; tags.push(t); }
+        });
+      });
+      return tags;
+    }
+
+    function renderFilter() {
+      var row = document.getElementById('tag-filter');
+      while (row.firstChild) row.removeChild(row.firstChild);
+      getAllTags().forEach(function(t) {
+        var btn = document.createElement('button');
+        btn.className = 'filter-btn' + (t === activeTag ? ' active' : '');
+        btn.textContent = t;
+        btn.onclick = function() { activeTag = t; renderFilter(); filterPosts(); };
+        row.appendChild(btn);
+      });
+    }
+
+    function filterPosts() {
+      var cards = document.querySelectorAll('#blog-grid .post-card');
+      var noMsg = document.getElementById('no-posts');
+      var visible = 0;
+      cards.forEach(function(card) {
+        var show = activeTag === 'All' || card.dataset.tags.split(',').indexOf(activeTag) !== -1;
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      noMsg.style.display = visible === 0 ? '' : 'none';
+    }
+
+    function openModal(id) {
+      var overlay = document.getElementById(id);
+      if (overlay) { overlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
+    }
+
+    function closeModal(id) {
+      var overlay = document.getElementById(id);
+      if (overlay) { overlay.classList.remove('open'); document.body.style.overflow = ''; }
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.open').forEach(function(o) {
+          o.classList.remove('open');
+          document.body.style.overflow = '';
+        });
+      }
+    });
+
+    function renderPosts() {
+      var grid = document.getElementById('blog-grid');
+      var container = document.getElementById('modal-container');
+
+      POSTS.forEach(function(p, idx) {
+        var id = 'modal-' + idx;
+
+        // Card
+        var card = document.createElement('div');
+        card.className = 'post-card reveal';
+        card.style.transitionDelay = (idx % 3 * 0.1) + 's';
+        card.dataset.tags = p.tags.join(',');
+        card.onclick = function() { openModal(id); };
+
+        var body = document.createElement('div');
+        body.className = 'post-card-body';
+
+        var date = document.createElement('p');
+        date.className = 'post-date';
+        date.textContent = p.date;
+
+        var title = document.createElement('h2');
+        title.className = 'post-card-title';
+        title.textContent = p.title;
+
+        var excerpt = document.createElement('p');
+        excerpt.className = 'post-excerpt';
+        excerpt.textContent = p.excerpt;
+
+        var tags = document.createElement('div');
+        tags.className = 'post-tags';
+        p.tags.forEach(function(t) {
+          var tag = document.createElement('span');
+          tag.className = 'post-tag';
+          tag.textContent = t;
+          tags.appendChild(tag);
+        });
+
+        var readMore = document.createElement('span');
+        readMore.className = 'post-read-more';
+        readMore.textContent = 'Read';
+
+        body.appendChild(date);
+        body.appendChild(title);
+        body.appendChild(excerpt);
+        body.appendChild(tags);
+        body.appendChild(readMore);
+        card.appendChild(body);
+        grid.appendChild(card);
+
+        // Modal
+        var overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.id = id;
+        overlay.onclick = function(e) { if (e.target === overlay) closeModal(id); };
+
+        var modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-modal', 'true');
+
+        var closeBtn = document.createElement('button');
+        closeBtn.className = 'modal-close';
+        closeBtn.textContent = 'Close \u2715';
+        closeBtn.onclick = function(e) { e.stopPropagation(); closeModal(id); };
+
+        var mbody = document.createElement('div');
+        mbody.className = 'modal-body';
+
+        var mdate = document.createElement('span');
+        mdate.className = 'modal-date';
+        mdate.textContent = p.date;
+
+        var mtitle = document.createElement('h2');
+        mtitle.className = 'modal-title';
+        mtitle.textContent = p.title;
+
+        var mcontent = document.createElement('div');
+        mcontent.className = 'modal-content';
+        p.content.forEach(function(para) {
+          var pg = document.createElement('p');
+          pg.textContent = para;
+          mcontent.appendChild(pg);
+        });
+
+        var mfooter = document.createElement('div');
+        mfooter.className = 'modal-footer-tags';
+        p.tags.forEach(function(t) {
+          var tag = document.createElement('span');
+          tag.className = 'modal-tag';
+          tag.textContent = t;
+          mfooter.appendChild(tag);
+        });
+
+        mbody.appendChild(mdate);
+        mbody.appendChild(mtitle);
+        mbody.appendChild(mcontent);
+        mbody.appendChild(mfooter);
+        modal.appendChild(closeBtn);
+        modal.appendChild(mbody);
+        overlay.appendChild(modal);
+        container.appendChild(overlay);
+      });
+    }
+
+    renderFilter();
+    renderPosts();
+    filterPosts();
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el); });
+    document.querySelectorAll('#page-header .reveal').forEach(function(el) {
+      setTimeout(function() { el.classList.add('visible'); }, 100);
+    });
+  </script>
+
+</body>
+</html>

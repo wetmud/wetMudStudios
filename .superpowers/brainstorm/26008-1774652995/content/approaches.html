@@ -1,0 +1,42 @@
+<h2>Architecture Approaches</h2>
+<p class="subtitle">Three ways to structure the lead gen pipeline. Pick the one that fits.</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Monorepo — One Folder, Everything Together</h3>
+      <p>Single <code>leadgen/</code> folder: Python scraper + Node.js API server + vanilla HTML/JS CRM frontend. SQLite database lives locally. Run with one command. Deploy scraper + API to Railway, CRM as static files to GitHub Pages.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>Simple to reason about</li><li>One repo, one deploy</li><li>Easy to hand off</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>CRM is public unless you add auth</li><li>Tighter coupling if it grows</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Split — Scraper CLI + Separate CRM App</h3>
+      <p>Scraper is a standalone Python CLI you run locally — outputs to SQLite. CRM is a separate Node.js/Express app that reads the same DB and serves a UI. Two processes, clean separation.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>Scraper stays local (no hosting cost)</li><li>CRM can evolve independently</li><li>Easier to open-source the scraper separately</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Two things to run/maintain</li><li>DB sync gets tricky if you ever go multi-user</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Unified Node.js App — API + Scraper + CRM</h3>
+      <p>Single Node.js server handles everything: scrape jobs (using Playwright), REST API, and serves the CRM frontend. SQLite via better-sqlite3. One process, one deploy to Railway.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>One language throughout</li><li>Single deploy, single process</li><li>Easiest path to adding auth + multi-user later</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Node + Playwright is heavier than Python scraping</li><li>Slightly more complex to set up locally</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:24px">⭐ Recommended: <strong>C</strong> — unified Node.js keeps everything in one place, one deploy, and sets you up best for eventually productizing it with auth + multi-tenancy.</p>
