@@ -1,0 +1,9 @@
+.DS_Store
+.worktrees/
+worktrees/
+*.db
+.env
+node_modules/
+__pycache__/
+*.pyc
+.superpowers/
