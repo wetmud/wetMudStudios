@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lead Gen -- wetMud Studios</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="header">
+  <span class="header-title">wetMud Lead Gen</span>
+</div>
+
+<div class="filter-bar">
+  <select id="filter-city"><option value="">All Cities</option></select>
+  <select id="filter-niche"><option value="">All Niches</option></select>
+  <select id="filter-status">
+    <option value="">All Statuses</option>
+    <option value="new">New</option>
+    <option value="contacted">Contacted</option>
+    <option value="replied">Replied</option>
+    <option value="won">Won</option>
+    <option value="lost">Lost</option>
+  </select>
+  <input type="text" id="filter-search" placeholder="Search name..." style="width:140px">
+  <button class="btn-clear" id="btn-clear">x Clear</button>
+  <span class="lead-count" id="lead-count"></span>
+</div>
+
+<div class="split">
+  <div class="lead-list" id="lead-list"></div>
+  <div class="detail-panel" id="detail-panel">
+    <div class="detail-placeholder">Select a lead to view details</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var allLeads = [];
+var activeLead = null;
+
+// --- DOM helpers: all user data goes through these ---
+
+function el(tag, className) {
+  var node = document.createElement(tag);
+  if (className) node.className = className;
+  return node;
+}
+
+function txt(tag, className, text) {
+  var node = el(tag, className);
+  node.textContent = text || '';
+  return node;
+}
+
+// --- Bootstrap ---
+
+function init() {
+  loadMeta();
+  loadLeads();
+}
+
+function loadMeta() {
+  fetch('/api/meta').then(function(r) { return r.json(); }).then(function(data) {
+    var cityEl = document.getElementById('filter-city');
+    var nicheEl = document.getElementById('filter-niche');
+    data.cities.forEach(function(c) { cityEl.add(new Option(c, c)); });
+    data.niches.forEach(function(n) { nicheEl.add(new Option(n, n)); });
+  }).catch(function() {});
+}
+
+function loadLeads() {
+  var params = new URLSearchParams();
+  var city = document.getElementById('filter-city').value;
+  var niche = document.getElementById('filter-niche').value;
+  var status = document.getElementById('filter-status').value;
+  var search = document.getElementById('filter-search').value;
+  if (city) params.set('city', city);
+  if (niche) params.set('niche', niche);
+  if (status) params.set('status', status);
+  if (search) params.set('search', search);
+
+  var hasFilters = city || niche || status || search;
+  document.getElementById('btn-clear').classList.toggle('visible', !!hasFilters);
+
+  fetch('/api/leads?' + params.toString())
+    .then(function(r) { return r.json(); })
+    .then(function(data) { allLeads = data; renderList(); })
+    .catch(function() {
+      var listEl = document.getElementById('lead-list');
+      listEl.replaceChildren();
+      var msg = el('div', 'empty-state');
+      msg.textContent = 'Failed to load leads.';
+      listEl.appendChild(msg);
+    });
+}
+
+// --- Lead list ---
+
+function renderList() {
+  var listEl = document.getElementById('lead-list');
+  listEl.replaceChildren();
+  document.getElementById('lead-count').textContent = allLeads.length + ' lead' + (allLeads.length !== 1 ? 's' : '');
+
+  if (!allLeads.length) {
+    var empty = el('div', 'empty-state');
+    var hasFilters = ['filter-city','filter-niche','filter-status','filter-search']
+      .some(function(id) { return document.getElementById(id).value; });
+    if (hasFilters) {
+      empty.textContent = 'No leads match these filters.';
+      var clearLink = el('a');
+      clearLink.href = '#';
+      clearLink.textContent = 'Clear filters';
+      clearLink.addEventListener('click', function(e) { e.preventDefault(); clearFilters(); });
+      empty.appendChild(document.createElement('br'));
+      empty.appendChild(clearLink);
+    } else {
+      empty.textContent = 'No leads yet. Run the scraper:';
+      var code = el('code');
+      code.textContent = 'python scrape.py --city Burlington --type restaurant';
+      empty.appendChild(code);
+    }
+    listEl.appendChild(empty);
+    return;
+  }
+
+  allLeads.forEach(function(lead) {
+    var row = el('div', 'lead-row' + (activeLead && activeLead.id === lead.id ? ' active' : ''));
+    row.addEventListener('click', function() { selectLead(lead.id); });
+
+    var left = el('div');
+
+    var nameRow = el('div', 'lead-name');
+    nameRow.textContent = lead.name;
+    if (lead.is_new) {
+      var pill = txt('span', 'pill-new', 'NEW');
+      nameRow.appendChild(pill);
+    }
+
+    var meta = el('div', 'lead-meta');
+    meta.textContent = (lead.city || '') + ' - ' + (lead.niche || '');
+
+    left.appendChild(nameRow);
+    left.appendChild(meta);
+
+    var tierClass = lead.score >= 70 ? 'score-hot' : (lead.score >= 40 ? 'score-warm' : 'score-cold');
+    var scoreEl = txt('div', 'lead-score ' + tierClass, lead.score + 'pts');
+
+    row.appendChild(left);
+    row.appendChild(scoreEl);
+    listEl.appendChild(row);
+  });
+}
+
+// --- Lead detail ---
+
+function selectLead(id) {
+  fetch('/api/leads/' + id)
+    .then(function(r) { return r.json(); })
+    .then(function(data) { activeLead = data; renderDetail(); renderList(); })
+    .catch(function() {});
+}
+
+function renderDetail() {
+  var panel = document.getElementById('detail-panel');
+  var l = activeLead;
+
+  // Clear existing content and rebuild with DOM methods
+  panel.replaceChildren();
+
+  // Static skeleton elements with no user data injection
+  var detailName = txt('div', 'detail-name', '');
+  detailName.id = 'd-name';
+  var detailSub = txt('div', 'detail-sub', '');
+  detailSub.id = 'd-sub';
+
+  var detailSignals = el('div', 'detail-signals');
+  detailSignals.id = 'd-signals';
+
+  var scoreBlock = el('div', 'score-block');
+  var scoreNum = txt('div', 'score-number', '');
+  scoreNum.id = 'd-score';
+  var scoreLabel = txt('div', '', 'Lead score');
+  scoreLabel.style.fontSize = '12px';
+  scoreLabel.style.color = 'var(--muted)';
+  scoreLabel.style.marginTop = '2px';
+  var scoreBreakdown = el('div');
+  scoreBreakdown.id = 'd-breakdown';
+  scoreBlock.appendChild(scoreNum);
+  scoreBlock.appendChild(scoreLabel);
+  scoreBlock.appendChild(scoreBreakdown);
+
+  var statusGroup = el('div', 'field-group');
+  var statusLabel = txt('div', 'field-label', 'Status');
+  var statusSelect = document.createElement('select');
+  statusSelect.className = 'status-select';
+  statusSelect.id = 'd-status';
+  statusGroup.appendChild(statusLabel);
+  statusGroup.appendChild(statusSelect);
+
+  var phoneGroup = el('div', 'field-group');
+  phoneGroup.id = 'd-phone-group';
+  phoneGroup.style.display = 'none';
+  var phoneLabel = txt('div', 'field-label', 'Phone');
+  var phoneVal = el('div');
+  phoneVal.id = 'd-phone';
+  phoneGroup.appendChild(phoneLabel);
+  phoneGroup.appendChild(phoneVal);
+
+  var websiteGroup = el('div', 'field-group');
+  websiteGroup.id = 'd-website-group';
+  websiteGroup.style.display = 'none';
+  var websiteLabel = txt('div', 'field-label', 'Website');
+  var websiteVal = el('div');
+  websiteVal.id = 'd-website';
+  websiteGroup.appendChild(websiteLabel);
+  websiteGroup.appendChild(websiteVal);
+
+  var notesGroup = el('div', 'field-group');
+  var notesLabel = txt('div', 'field-label', 'Notes');
+  var notesArea = document.createElement('textarea');
+  notesArea.className = 'notes-area';
+  notesArea.id = 'd-notes';
+  notesArea.placeholder = 'Add notes...';
+  var notesConfirm = el('div');
+  notesConfirm.id = 'd-notes-confirm';
+  notesConfirm.className = 'save-confirm';
+  notesGroup.appendChild(notesLabel);
+  notesGroup.appendChild(notesArea);
+  notesGroup.appendChild(notesConfirm);
+
+  var emailGroup = el('div', 'field-group');
+  var emailLabel = txt('div', 'field-label', 'Outreach Email');
+  var draftBtn = document.createElement('button');
+  draftBtn.className = 'btn-draft';
+  draftBtn.id = 'btn-draft';
+  draftBtn.textContent = 'Draft Outreach Email';
+  var draftBlock = el('div');
+  draftBlock.id = 'd-draft-block';
+  var draftError = el('div');
+  draftError.className = 'draft-error';
+  draftError.id = 'd-draft-error';
+  emailGroup.appendChild(emailLabel);
+  emailGroup.appendChild(draftBtn);
+  emailGroup.appendChild(draftBlock);
+  emailGroup.appendChild(draftError);
+
+  panel.appendChild(detailName);
+  panel.appendChild(detailSub);
+  panel.appendChild(detailSignals);
+  panel.appendChild(scoreBlock);
+  panel.appendChild(statusGroup);
+  panel.appendChild(phoneGroup);
+  panel.appendChild(websiteGroup);
+  panel.appendChild(notesGroup);
+  panel.appendChild(emailGroup);
+
+  // Now fill user data via textContent/attributes only
+  document.getElementById('d-name').textContent = l.name;
+  document.getElementById('d-sub').textContent =
+    (l.city || '') + (l.niche ? ' - ' + l.niche : '') + (l.address ? ' - ' + l.address : '');
+
+  // Signals
+  var signalsEl = document.getElementById('d-signals');
+  var signalDefs = [
+    { show: !l.has_website, bad: true, label: 'No website' },
+    { show: !l.has_google_listing, bad: true, label: 'No Google listing' },
+    { show: ['wix','squarespace','weebly'].indexOf(l.site_platform) !== -1, bad: true, label: (l.site_platform || '') + ' site' },
+    { show: !l.has_ssl && l.has_website, bad: true, label: 'No SSL' },
+    { show: l.review_count !== null && l.review_count < 10, bad: false, label: 'Few reviews (' + l.review_count + ')' },
+  ];
+  signalDefs.forEach(function(s) {
+    if (!s.show) return;
+    var span = txt('span', 'signal' + (s.bad ? ' bad' : ''), s.label);
+    signalsEl.appendChild(span);
+  });
+
+  // Score
+  var scoreEl = document.getElementById('d-score');
+  scoreEl.textContent = l.score + (l.score >= 70 ? ' [hot]' : '');
+  scoreEl.className = 'score-number' + (l.score >= 70 ? ' hot' : l.score >= 40 ? ' warm' : '');
+
+  // Breakdown
+  var breakdownEl = document.getElementById('d-breakdown');
+  var breakdown = {};
+  try { breakdown = JSON.parse(l.score_breakdown || '{}'); } catch (_) {}
+  Object.keys(breakdown).forEach(function(k) {
+    var row = el('div', 'breakdown-row');
+    var labelNode = document.createTextNode(k.replace(/_/g, ' '));
+    var pts = txt('span', null, '+' + breakdown[k]);
+    row.appendChild(labelNode);
+    row.appendChild(pts);
+    breakdownEl.appendChild(row);
+  });
+
+  // Status dropdown
+  var statusEl = document.getElementById('d-status');
+  ['new','contacted','replied','won','lost'].forEach(function(s) {
+    var opt = new Option(s.charAt(0).toUpperCase() + s.slice(1), s);
+    if (s === l.status) opt.selected = true;
+    statusEl.add(opt);
+  });
+  statusEl.addEventListener('change', function() { updateStatus(l.id, statusEl.value); });
+
+  // Phone
+  if (l.phone) {
+    document.getElementById('d-phone-group').style.display = '';
+    document.getElementById('d-phone').textContent = l.phone;
+  }
+
+  // Website -- only render as a link if the URL uses http(s) scheme
+  if (l.website_url) {
+    document.getElementById('d-website-group').style.display = '';
+    var websiteContainer = document.getElementById('d-website');
+    if (/^https?:\/\//.test(l.website_url)) {
+      var link = document.createElement('a');
+      link.textContent = l.website_url;
+      link.setAttribute('href', l.website_url);
+      link.setAttribute('target', '_blank');
+      link.setAttribute('rel', 'noopener noreferrer');
+      websiteContainer.appendChild(link);
+    } else {
+      websiteContainer.textContent = l.website_url;
+    }
+  }
+
+  // Notes
+  var notesEl = document.getElementById('d-notes');
+  var outreach = l.outreach;
+  notesEl.value = outreach && outreach.notes ? outreach.notes : '';
+  notesEl.addEventListener('blur', function() { saveNotes(l.id, notesEl.value); });
+
+  // Draft button + existing draft
+  var draftBtn = document.getElementById('btn-draft');
+  var existingDraft = outreach && outreach.email_draft;
+
+  if (existingDraft) {
+    draftBtn.textContent = 'View Draft';
+    showDraft(existingDraft, l.id, true);
+  }
+
+  draftBtn.addEventListener('click', function() { draftEmail(l.id); });
+}
+
+function showDraft(draftText, leadId, cached) {
+  var block = document.getElementById('d-draft-block');
+  block.replaceChildren();
+
+  var draftDiv = el('div', 'draft-block');
+
+  var textEl = el('div', 'draft-text');
+  textEl.id = 'd-draft-text';
+  textEl.textContent = draftText;
+
+  var actions = el('div', 'draft-actions');
+  var copyBtn = txt('button', 'btn-copy', 'Copy');
+  copyBtn.addEventListener('click', copyDraft);
+
+  var regenBtn = txt('button', 'btn-regen', 'Regenerate');
+  regenBtn.addEventListener('click', function() { regenDraft(leadId); });
+
+  actions.appendChild(copyBtn);
+  actions.appendChild(regenBtn);
+  if (cached) {
+    actions.appendChild(txt('span', null, 'Saved draft'));
+  }
+
+  draftDiv.appendChild(textEl);
+  draftDiv.appendChild(actions);
+  block.appendChild(draftDiv);
+}
+
+// --- Actions ---
+
+function updateStatus(id, status) {
+  fetch('/api/leads/' + id, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: status })
+  }).then(function() {
+    showToast('Status saved');
+    if (activeLead) activeLead.status = status;
+    renderList();
+  });
+}
+
+function saveNotes(id, notes) {
+  fetch('/api/leads/' + id, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ notes: notes })
+  }).then(function() {
+    var confirm = document.getElementById('d-notes-confirm');
+    if (confirm) {
+      confirm.textContent = 'Saved';
+      setTimeout(function() { if (confirm) confirm.textContent = ''; }, 2000);
+    }
+  });
+}
+
+function draftEmail(id) {
+  var btn = document.getElementById('btn-draft');
+  var errEl = document.getElementById('d-draft-error');
+  btn.disabled = true;
+  btn.textContent = 'Drafting...';
+  errEl.textContent = '';
+
+  fetch('/api/leads/' + id + '/draft', { method: 'POST' })
+    .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+    .then(function(result) {
+      if (!result.ok) throw new Error(result.data.error || 'Unknown error');
+      showDraft(result.data.draft, id, result.data.cached);
+      btn.textContent = 'Draft Ready';
+    })
+    .catch(function(err) {
+      errEl.textContent = err.message;
+      btn.disabled = false;
+      btn.textContent = 'Draft Outreach Email';
+    });
+}
+
+function regenDraft(id) {
+  var btn = document.getElementById('btn-draft');
+  var errEl = document.getElementById('d-draft-error');
+  btn.disabled = true;
+  btn.textContent = 'Regenerating...';
+  errEl.textContent = '';
+
+  fetch('/api/leads/' + id + '/draft?regenerate=1', { method: 'POST' })
+    .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+    .then(function(result) {
+      if (!result.ok) throw new Error(result.data.error || 'Unknown error');
+      var textEl = document.getElementById('d-draft-text');
+      if (textEl) textEl.textContent = result.data.draft;
+      btn.textContent = 'Draft Ready';
+    })
+    .catch(function(err) {
+      errEl.textContent = err.message;
+      btn.disabled = false;
+      btn.textContent = 'Draft Outreach Email';
+    });
+}
+
+function copyDraft() {
+  var textEl = document.getElementById('d-draft-text');
+  if (!textEl) return;
+  navigator.clipboard.writeText(textEl.textContent)
+    .then(function() { showToast('Copied to clipboard'); });
+}
+
+function clearFilters() {
+  ['filter-city','filter-niche','filter-status'].forEach(function(id) {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('filter-search').value = '';
+  loadLeads();
+}
+
+function showToast(msg) {
+  var toastEl = document.getElementById('toast');
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  setTimeout(function() { toastEl.classList.remove('show'); }, 2500);
+}
+
+// Filter listeners
+['filter-city','filter-niche','filter-status'].forEach(function(id) {
+  document.getElementById(id).addEventListener('change', loadLeads);
+});
+var searchTimer;
+document.getElementById('filter-search').addEventListener('input', function() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(loadLeads, 300);
+});
+document.getElementById('btn-clear').addEventListener('click', clearFilters);
+
+init();
+</script>
+</body>
+</html>
