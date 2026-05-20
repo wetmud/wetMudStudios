@@ -93,33 +93,41 @@ Not "elevate your brand." More: "I built a tool that does X — here's what it d
 
 ## Work / Projects (rewritten for SMB audience)
 
-Pull screenshots/thumbs from jasonsteltman.com `images/` folder.
+Pull screenshots/thumbs from jasonsteltman.com `images/` folder. Current live lineup (refreshed 2026-05-20):
 
-**01 — CivicConnect**
-- Card: "Most people don't know who their elected officials are. I fixed that in 10 seconds — address in, all your reps out, with AI-drafted contact emails ready to send."
+**01 — Sourcepull** (wide hero card)
+- Card: "Find out what ChatGPT, Perplexity, Gemini, and Claude say about your business. AI Engine Optimization audits with scored visibility and a prioritized fix plan. Built alongside an AI CEO agent over 90+ working sessions. Accepted into Innovation Factory."
+- Tags: AEO · Agentic · Next.js
+- Link: https://sourcepull.ca
+- Image: sourcepull1.png
+
+**02 — Civic Engagement** (narrow)
+- Card: "Every elected representative from city councillor to Prime Minister, from a single address. No cookies, no tracking. AI chatbot routes residents to the right city department across 9 Ontario municipalities."
 - Tags: Civic Tech · AI · Vanilla JS
-- Link: https://wetmud.github.io/CivicConnect/
-- Image: Civicconnect3.png
+- Link: https://civicengagement.ca
+- Image: civicengagement1.png
+- Note: renamed from CivicConnect; production URL is now civicengagement.ca, not wetmud.github.io/CivicConnect
 
-**02 — EventLineup**
-- Card: "Six ticketing platforms, 28 GTA venues, one calendar. The event discovery tool I kept wishing existed."
-- Tags: API Integration · Events · GTA
-- Link: https://wetmud.github.io/eventpulse/
-- Image: EventSC1.png
+**03 — OnTonight** (half)
+- Card: "One calendar for every event in the GTA — concerts, theatre, comedy, festivals, sports. Density-gradient calendar view, 12-area filtering, save and remind. The most technically complex thing in the studio."
+- Tags: React · Supabase · Railway
+- Link: https://ontonight-three.vercel.app/
+- Image: OnTonight1.png
+- Note: replaces EventLineup/eventpulse, which had a dead deploy link
 
-**03 — GrantMatch**
-- Card: "AI-assisted grant discovery for Canadian organizations. Upload your org profile, get matched to funding you actually qualify for."
-- Tags: AI · Grants · Claude API
-- Link: (add when available)
-- Image: (add screenshot when available)
+**04 — GrantMatch** (half)
+- Card: "Drop in a project description — text, PDF, or screenshot — and get matched to grants you actually qualify for. Companion tracker manages your pipeline with status, deadlines, and next steps."
+- Tags: AI · Grants · BYOK
+- Link: (none — add when available)
+- Image: GrantMatch1.png
 
-**04 — RE:PULSE**
+**05 — RE:PULSE** (half)
 - Card: "GTA real estate intelligence without the Bloomberg terminal price tag. Live scraped data, scatter plots, full sortable listings."
 - Tags: Data · Scraper · Dashboard
 - Link: https://wetmud.github.io/realestate-scraper-1-/
 - Image: RealEstateScraper.png
 
-**05 — Ontario Markets**
+**06 — Ontario Markets** (half)
 - Card: "35 farmers' markets, 6 regions, one calendar. Built because I kept missing market day in my own neighbourhood."
 - Tags: Local · Calendar · Ontario
 - Link: https://ontario-fresh-finds.lovable.app/
@@ -202,11 +210,14 @@ index.html        — entire site (single file)
 images/           — copy needed images from ../personalsite/images/
 ```
 
-Images to copy from `../personalsite/images/`:
-- Civicconnect3.png
-- EventSC1.png
+Images currently in use (copied from `../personalsite/`):
+- sourcepull1.png
+- civicengagement1.png
+- OnTonight1.png
+- GrantMatch1.png
 - RealEstateScraper.png
 - OFF1.png
+- Civicconnect3.png, EventSC1.png — legacy, no longer referenced (safe to remove)
 
 ---
 
